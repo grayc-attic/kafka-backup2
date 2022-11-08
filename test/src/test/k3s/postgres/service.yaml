@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres
+spec:
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+  selector:
+    app.kubernetes.io/name: postgres

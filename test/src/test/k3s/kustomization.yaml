@@ -1,0 +1,8 @@
+resources:
+  - traefik
+  - dashboard
+  - kafka
+  - kafka-backup
+  - kafdrop
+  - postgres
+  - swagger-ui

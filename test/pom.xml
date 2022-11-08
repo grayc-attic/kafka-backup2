@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>io.kokuwa.kafka</groupId>
+		<artifactId>kafka-backup</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>kafka-backup-test</artifactId>
+
+	<name>Kafka Replay :: Test</name>
+
+	<build>
+		<plugins>
+
+			<!-- add generated sources -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources/openapi</source>
+								<source>${project.build.directory}/generated-test-sources/openapi</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- generate sources from openapi spec -->
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/../service/src/main/resources/openapi/spec.yaml</inputSpec>
+							<configOptions>
+								<clientId>kafka-backup</clientId>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- configure annotation processors -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase />
+					</execution>
+				</executions>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${version.org.projectlombok}</version>
+						</path>
+						<path>
+							<groupId>io.micronaut</groupId>
+							<artifactId>micronaut-inject-java</artifactId>
+							<version>${version.io.micronaut}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<!-- copy k3s -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-resources</id>
+						<phase />
+					</execution>
+					<execution>
+						<id>k3s</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/src/test/k3s</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+							<outputDirectory>${project.build.directory}/k3s</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- prepare k3s for integration tests -->
+			<plugin>
+				<groupId>io.kokuwa.maven</groupId>
+				<artifactId>k3s-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create</goal>
+							<goal>start</goal>
+							<goal>image</goal>
+							<goal>kubectl</goal>
+							<goal>rm</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<command>kubectl apply -k .</command>
+					<imageTag>v1.24.3-k3s1</imageTag>
+					<manifests>${project.build.directory}/k3s</manifests>
+					<portBindings>
+						<portBinding>8080:8080</portBinding>
+						<portBinding>9091:9091</portBinding>
+					</portBindings>
+					<kubectlPath>kubectl</kubectlPath>
+					<dockerImages>
+						<dockerImage>${jib.to.image}</dockerImage>
+					</dockerImages>
+				</configuration>
+			</plugin>
+
+			<!-- run integration tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- do not compile/jar/test anything -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase />
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-test</id>
+						<phase />
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

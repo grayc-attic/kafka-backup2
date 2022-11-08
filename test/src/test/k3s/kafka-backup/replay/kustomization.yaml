@@ -1,0 +1,12 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: kafka-backup-replay
+    literals:
+      - KAFKA_BACKUP_REST_ENABLED=true
+      - KAFKA_BACKUP_CONSUMER_ENABLED=false
+      - DATASOURCES_DEFAULT_READ_ONLY=true
+      - FLYWAY_DATASOURCES_DEFAULT_ENABLED=false

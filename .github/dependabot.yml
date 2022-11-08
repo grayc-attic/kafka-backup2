@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: 8:00
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: 9:00

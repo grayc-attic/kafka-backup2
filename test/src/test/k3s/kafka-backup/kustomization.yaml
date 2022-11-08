@@ -1,0 +1,12 @@
+resources:
+  - consumer
+  - replay
+
+configMapGenerator:
+  - name: kafka-backup-config
+    literals:
+      - MICRONAUT_ENVIRONMENTS=postgres
+      - MICRONAUT_SECURITY_ENABLED=false
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - LOGGER_LEVELS_IO_KOKUWA=TRACE
+      - LOGGER_LEVELS_ORG_APACHE_KAFKA=ERROR
