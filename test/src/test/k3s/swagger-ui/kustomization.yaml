@@ -1,0 +1,13 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: swagger-ui-config
+    literals:
+      - URL=http://kafka-backup.127.0.0.1.nip.io:8080/openapi/spec.yaml
+      - DISPLAY_OPERATION_ID=true
+      - DISPLAY_REQUEST_DURATION=true
+      - VALIDATOR_URL=
+      - TRY_IT_OUT_ENABLED=true

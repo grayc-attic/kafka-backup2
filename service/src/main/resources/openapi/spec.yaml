@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: Kafka Replay API
+  description: REST API to get and replay messages retrieved from Kafka.
+  version: 1.0.0
+  license:
+    name: Apache License 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Kokuwa.io Project
+    url: https://www.kokuwa.io
+servers:
+  - url: http://kafka-backup-api.127.0.0.1.nip.io:8080
+security:
+  - BearerAuth: []
+paths:
+  /topic:
+    get:
+      tags: [kafka]
+      summary: Get topics.
+      description: Get all topic names.
+      operationId: getTopics
+      responses:
+        200:
+          description: List of topics.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopicName"
+        401:
+          description: Unauthorized.
+  /topic/{topic}/replay:
+    parameters:
+      - $ref: "#/components/parameters/TopicName"
+      - $ref: "#/components/parameters/TimestampFrom"
+      - $ref: "#/components/parameters/TimestampTo"
+    post:
+      tags: [kafka]
+      summary: Replay topic.
+      description: Replay all messages of topic in timerange.
+      operationId: replayTopic
+      responses:
+        204:
+          description: Replay triggered.
+        401:
+          description: Unauthorized.
+        404:
+          description: Topic not found.
+  /topic/{topic}/key:
+    parameters:
+      - $ref: "#/components/parameters/TopicName"
+    get:
+      tags: [kafka]
+      summary: Get keys.
+      description: Get all key values for given topic.
+      operationId: getKeys
+      responses:
+        200:
+          description: List of keys.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KeyName"
+        401:
+          description: Unauthorized.
+        404:
+          description: Topic not found.
+  /topic/{topic}/key/{key}/replay:
+    parameters:
+      - $ref: "#/components/parameters/TopicName"
+      - $ref: "#/components/parameters/KeyName"
+      - $ref: "#/components/parameters/TimestampFrom"
+      - $ref: "#/components/parameters/TimestampTo"
+    post:
+      tags: [kafka]
+      summary: Replay by key on topic.
+      description: Replay all messages of topic/key in timerange.
+      operationId: replayTopicKey
+      responses:
+        204:
+          description: Replay triggered.
+        401:
+          description: Unauthorized.
+        404:
+          description: Topic/Key not found.
+components:
+  schemas:
+    TopicName:
+      description: Name of a Kafka topic.
+      externalDocs:
+        url: https://devshawn.com/blog/apache-kafka-topic-naming-conventions/
+      type: string
+      example: hono.telemetry
+    KeyName:
+      description: Key of a Kafka message.
+      type: string
+      example: DEVICE-00001
+  parameters:
+    TopicName:
+      name: topic
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/TopicName"
+    KeyName:
+      name: key
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/KeyName"
+    TimestampFrom:
+      name: from
+      in: query
+      schema:
+        type: string
+        format: date-time
+    TimestampTo:
+      name: to
+      in: query
+      schema:
+        type: string
+        format: date-time
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

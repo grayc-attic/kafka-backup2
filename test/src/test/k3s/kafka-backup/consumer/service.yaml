@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafka-backup-consumer
+spec:
+  ports:
+    - name: management
+      port: 80
+      targetPort: management
+  selector:
+    app.kubernetes.io/name: kafka-backup
+    app.kubernetes.io/component: consumer

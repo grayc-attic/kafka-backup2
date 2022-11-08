@@ -1,0 +1,11 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: kafka-backup-consumer
+    literals:
+      - KAFKA_BACKUP_REST_ENABLED=false
+      - KAFKA_BACKUP_CONSUMER_ENABLED=true
+      - KAFKA_CONSUMERS_DEFAULT_METADATA_MAX_AGE_MS=500

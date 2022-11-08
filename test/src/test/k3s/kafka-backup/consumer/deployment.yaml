@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: kafka-backup-consumer
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-backup
+      app.kubernetes.io/component: consumer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka-backup
+        app.kubernetes.io/component: consumer
+    spec:
+      containers:
+        - name: kafka-backup
+          image: ${jib.to.image}
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: kafka-backup-config
+            - configMapRef:
+                name: kafka-backup-consumer
+          ports:
+            - name: management
+              containerPort: 8090
+          startupProbe:
+            httpGet:
+              path: /endpoints/health
+              port: management
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            successThreshold: 1
+            failureThreshold: 55
+          securityContext:
+            runAsUser: 10000
+            runAsGroup: 10000
+            readOnlyRootFilesystem: true
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 0

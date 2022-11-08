@@ -1,0 +1,26 @@
+micronaut:
+
+  ## http clients for testing
+  http:
+    services:
+      management:
+        url: http://kafka-backup-consumer-management.127.0.0.1.nip.io:8080
+        logger-name: io.kokuwa.kafka.Management
+      kafka-backup:
+        url: http://kafka-backup-replay.127.0.0.1.nip.io:8080
+        logger-name: io.kokuwa.kafka.Client
+
+## see https://micronaut-projects.github.io/micronaut-kafka/latest/guide
+kafka:
+  bootstrap:
+    servers: kafka.127.0.0.1.nip.io:9091
+  consumers:
+    default:
+      metadata.max.age.ms: 500
+
+## custom logs
+logger:
+  levels:
+    io.kokuwa: TRACE
+    io.kokuwa.kafka.Management: INFO
+    org.apache.kafka: ERROR
